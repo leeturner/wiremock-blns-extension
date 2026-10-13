@@ -17,11 +17,15 @@ those cases for free.
   "response": {
     "status": 200,
     "headers": { "Content-Type": "application/json" },
-    "jsonBody": { "name": "{{{toJson (naughtyString category='sql-injection')}}}" },
+    "body": "{ \"name\": {{{toJson (naughtyString category='sql-injection')}}} }",
     "transformers": ["response-template"]
   }
 }
 ```
+
+The helper goes in a `body` string, unquoted, and `toJson` supplies the quotes and
+escaping. Inside a `jsonBody` string value (`"name": "{{{toJson …}}}"`) the quotes
+would double up and produce invalid JSON.
 
 ## Goals
 
@@ -234,6 +238,17 @@ already have WireMock on their classpath.
   record the commit in a comment in the README.
 - Parse the file once at class-load time into a `LinkedHashMap<String, List<String>>`
   (category → strings), plus one flat `List<String>` of every string.
+  - **Parsed once at startup, reused for every request.** A static initialiser
+    loads the file the first time the helper class loads. The result is held in
+    immutable collections and shared by every WireMock server in the JVM, so no
+    request re-reads or re-parses the file. The cost is one pass over about 30 KB.
+  - **No build-time conversion.** Turning `blns.txt` into JSON or Java source
+    during the build would only move the parser into the build and add a reader
+    at runtime. JSON would also need Jackson, which is relocated in standalone.
+    Java source would need escaping for the control, zero-width, BOM and
+    lone-surrogate strings. The Phase 1 test already fails the build on a
+    parsing mistake. Revisit only if the list grows a lot or has to be fetched
+    from upstream.
 - Parsing rules, taken from the file as it is today:
   - A **category heading** is a `#\t<title>` line followed directly by a bare `#` line.
   - Any other `#` line is a comment.
@@ -271,11 +286,13 @@ Use `WireMockExtension` (junit5) with `.options(wireMockConfig().dynamicPort().e
 3. **Index:** `index=0` always gives the same string.
 4. **Errors:** an unknown category and an out-of-range index both give `[ERROR: ...]`.
 5. **JSON safety (the most important test):** for *every* index, a
-   `jsonBody`/`body` stub using `{{{toJson (naughtyString index=i)}}}` must return
+   `body` stub using `{ "value": {{{toJson (naughtyString index=i)}}} }` must return
    JSON that parses and round-trips to the original string. This shows the README's
    recommended pattern works for all ~515 entries. If `toJson` fails on some
    (control characters, lone surrogates), document those entries or add a
-   `json=true` hash option. Only build it if the test fails.
+   `json=true` hash option. Only build it if the test fails. Add one
+   `jsonBody` case as well, to confirm WireMock 4 doesn't treat a whole-string
+   `"{{{toJson …}}}"` value specially. If it does, document that as an alternative.
 6. **ServiceLoader:** a server started with `extensionScanningEnabled(true)` and
    *no* explicit extension still resolves `{{naughtyString}}`.
 
