@@ -276,7 +276,7 @@ already have WireMock on their classpath.
   - A few known strings land in the right category, e.g. `1;DROP TABLE users` → SQL Injection.
   - The whitespace-only entry `" "` is kept.
 
-### Phase 2: Helper and extension
+### Phase 2: Helper and extension ✅
 
 - `NaughtyStringHelper extends HandlebarsHelper<Object>`:
   - reads the `category` and `index` hash parameters;
