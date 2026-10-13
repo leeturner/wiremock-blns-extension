@@ -288,7 +288,7 @@ already have WireMock on their classpath.
   containing `BlnsExtension`.
 - Two classes, one data file and no extra abstractions.
 
-### Phase 3: Embedded integration tests
+### Phase 3: Embedded integration tests ✅
 
 Use `WireMockExtension` (junit5) with `.options(wireMockConfig().dynamicPort().extensions(new BlnsExtension()))`:
 
@@ -306,6 +306,11 @@ Use `WireMockExtension` (junit5) with `.options(wireMockConfig().dynamicPort().e
    `"{{{toJson …}}}"` value specially. If it does, document that as an alternative.
 6. **ServiceLoader:** a server started with `extensionScanningEnabled(true)` and
    *no* explicit extension still resolves `{{naughtyString}}`.
+
+**Result** (`BlnsExtensionTest`): `toJson` round-trips all 516 entries, so no
+`json=true` option is needed. WireMock 4 does not special-case a whole-string
+`"{{{toJson …}}}"` value in `jsonBody`: the quotes double up (`"value":""undefined""`),
+so the README should recommend `body` only.
 
 ### Phase 4: Standalone and Docker packaging
 
