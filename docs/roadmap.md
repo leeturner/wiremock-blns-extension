@@ -226,7 +226,7 @@ already have WireMock on their classpath.
 
 ## Phases
 
-### Phase 0: Scaffold
+### Phase 0: Scaffold ✅
 
 - Copy the scaffold from `wiremock-micronaut`:
   - the Gradle wrapper (9.8.x);
@@ -238,7 +238,7 @@ already have WireMock on their classpath.
   `!gradle/wrapper/gradle-wrapper.jar`, and add `.gradle/` and `build/`.
 - **Done when:** `./gradlew build` passes on an empty project.
 
-### Phase 1: Vendor and parse the list
+### Phase 1: Vendor and parse the list ✅
 
 - Copy `blns.txt` from BLNS commit `db33ec7b1d5d9616a88c76394b7d0897bd0b97eb` to
   `src/main/resources/blns/blns.txt`. Put the BLNS MIT licence next to it, and
@@ -246,7 +246,9 @@ already have WireMock on their classpath.
 - Parse the file once at class-load time into a `LinkedHashMap<String, List<String>>`
   (category → strings), plus one flat `List<String>` of every string.
   - **Parsed once at startup, reused for every request.** A static initialiser
-    loads the file the first time the helper class loads. The result is held in
+    in `NaughtyStringHelper` (the class Phase 2 turns into the helper, so Phase 2
+    still has only two classes) loads the file the first time the class loads.
+    The result is held in
     immutable collections and shared by every WireMock server in the JVM, so no
     request re-reads or re-parses the file. The cost is one pass over about 30 KB.
   - **No build-time conversion.** Turning `blns.txt` into JSON or Java source
@@ -263,14 +265,16 @@ already have WireMock on their classpath.
   - Every other line is a string, and belongs to the most recent heading.
   - Watch out: the "Special Unicode Characters Union" section has a second
     `#\t…` + `#` pair (the VMware description), which the heading rule would
-    wrongly treat as a category. Handle it with an explicit skip, or require the
-    heading to be preceded by a blank or string line. Pin the outcome with a test.
+    wrongly treat as a category. Every real heading follows a blank line (or
+    starts the file), and the VMware one follows a `#` line, so a heading must
+    also follow a blank line. A test pins this.
 - Read the file as UTF-8 explicitly. Keep trailing whitespace: some entries are
   only whitespace.
 - **Test:**
   - Exactly 30 categories, in file order (the list is in the appendix).
-  - About 515 strings in total. Assert the exact number once the parser is settled.
+  - Exactly 516 strings in total (`blns.json` has 515; see "Data source" above).
   - A few known strings land in the right category, e.g. `1;DROP TABLE users` → SQL Injection.
+  - The whitespace-only entry `" "` is kept.
 
 ### Phase 2: Helper and extension
 
