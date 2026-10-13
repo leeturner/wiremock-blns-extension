@@ -179,9 +179,16 @@ add Shadow.
           register<MavenPublication>("standalone") {
               artifactId = "wiremock-blns-extension-standalone"
               artifact(tasks.shadowJar) { classifier = null }
-              artifact(tasks.named("sourcesJar"))    // Central requires sources and javadoc
-              artifact(tasks.named("javadocJar"))    // for every artifactId
           }
+      }
+  }
+
+  // Central requires sources and javadoc for every artifactId. vanniktech registers
+  // `sourcesJar` and `plainJavadocJar` after evaluation, so attach them then.
+  afterEvaluate {
+      publishing.publications.named<MavenPublication>("standalone") {
+          artifact(tasks.named("sourcesJar"))
+          artifact(tasks.named("plainJavadocJar"))
       }
   }
   ```
@@ -300,14 +307,15 @@ Use `WireMockExtension` (junit5) with `.options(wireMockConfig().dynamicPort().e
 
 - `./gradlew shadowJar` produces `build/libs/wiremock-blns-extension-<v>-standalone.jar`
   (the classifier is only the local file name; it is published without one).
-- **Check what gets published.** Run `./gradlew publishToMavenLocal` and look in
+- **Check what gets published.** Run `./gradlew publishToMavenLocal` (on a
+  `-SNAPSHOT` version; anything else needs a signing key) and look in
   `~/.m2/repository/io/github/leeturner/`. You should see exactly two artifactIds,
   each with `.jar`, `-sources.jar`, `-javadoc.jar` and `.pom`, and POMs with no
   `<dependencies>`. Four things need checking, because they come from how
   vanniktech 0.37 and Shadow 9 behave together:
   - the `pom {}` block reaches the second publication;
   - `signAllPublications()` signs it;
-  - the `sourcesJar`/`javadocJar` task names are right;
+  - the `sourcesJar`/`plainJavadocJar` task names are right;
   - nothing renames the standalone artifactId.
 
   If the `pom {}` block isn't applied, set it on that publication directly.
@@ -335,7 +343,8 @@ Use `WireMockExtension` (junit5) with `.options(wireMockConfig().dynamicPort().e
   - helper reference with examples, including the `toJson` pattern for JSON bodies;
   - the category list;
   - BLNS attribution and licence.
-- GitHub Actions: copy `build.yml` and `release.yml` from `wiremock-micronaut`.
+- GitHub Actions: `build.yml`, `dependabot.yml` and `dependabot-automerge.yml`
+  were added in Phase 0. Copy `release.yml` from `wiremock-micronaut`.
   - `build.yml` runs `./gradlew build` (which includes the smoke test) on a JDK
     matrix of `17` and `25`. JDK 17 proves the extension runs on WireMock's baseline.
     Keep the `dependency-submission` job.
@@ -343,7 +352,7 @@ Use `WireMockExtension` (junit5) with `.options(wireMockConfig().dynamicPort().e
     `./gradlew build publishToMavenCentral -Pversion="${GITHUB_REF_NAME#v}"`. Add
     the `MAVEN_CENTRAL_USERNAME`, `MAVEN_CENTRAL_PASSWORD`, `SIGNING_KEY` and
     `SIGNING_PASSWORD` secrets to this repo.
-- Optional: copy `dependabot-automerge.yml` / `weekly.yml` too.
+- Optional: copy `weekly.yml` too.
 
 ## Risks and open questions
 
