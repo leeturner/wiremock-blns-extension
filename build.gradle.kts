@@ -34,6 +34,38 @@ tasks.shadowJar {
     relocate("com.github.jknack", "wiremock.com.github.jknack")
 }
 
+// Runs the standalone JAR inside wiremock-standalone, which relocates Handlebars.
+val wiremockStandalone = configurations.create("wiremockStandalone") { isTransitive = false }
+
+dependencies { wiremockStandalone(libs.wiremock.standalone) }
+
+testing {
+    suites {
+        register<JvmTestSuite>("smokeTest") {
+            dependencies {
+                implementation(platform(libs.junit.bom))
+                implementation("org.junit.jupiter:junit-jupiter")
+                implementation(libs.assertj)
+                runtimeOnly("org.junit.platform:junit-platform-launcher")
+            }
+            targets.all {
+                testTask.configure {
+                    useJUnitPlatform()
+                    inputs.files(tasks.shadowJar, wiremockStandalone)
+                    val extensionJar = tasks.shadowJar.flatMap { it.archiveFile }
+                    val standaloneJar = wiremockStandalone.elements.map { it.single().asFile }
+                    doFirst {
+                        systemProperty("extensionJar", extensionJar.get().asFile.path)
+                        systemProperty("standaloneJar", standaloneJar.get().path)
+                    }
+                }
+            }
+        }
+    }
+}
+
+tasks.check { dependsOn(testing.suites.named("smokeTest")) }
+
 spotless {
     java {
         target("src/**/*.java")
