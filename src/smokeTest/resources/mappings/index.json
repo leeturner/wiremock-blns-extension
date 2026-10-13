@@ -1,0 +1,4 @@
+{
+  "request": { "method": "GET", "url": "/index" },
+  "response": { "body": "{{naughtyString index=0}}", "transformers": ["response-template"] }
+}

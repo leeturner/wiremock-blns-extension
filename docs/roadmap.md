@@ -312,7 +312,7 @@ Use `WireMockExtension` (junit5) with `.options(wireMockConfig().dynamicPort().e
 `"{{{toJson …}}}"` value in `jsonBody`: the quotes double up (`"value":""undefined""`),
 so the README should recommend `body` only.
 
-### Phase 4: Standalone and Docker packaging
+### Phase 4: Standalone and Docker packaging ✅
 
 - `./gradlew shadowJar` produces `build/libs/wiremock-blns-extension-<v>-standalone.jar`
   (the classifier is only the local file name; it is published without one).
@@ -344,6 +344,15 @@ so the README should recommend `body` only.
   applies in 4.x** and record the result in the README.
 - **Done when:** both the embedded JAR and the standalone JAR give the same output
   for the same stub.
+
+**Result:** the smoke test is a `smokeTest` JVM test suite (`StandaloneSmokeTest`) wired
+into `check`. It checks the shadow JAR's contents and runs it in `wiremock-standalone`
+as a separate process, where `index=0` returns `undefined`, as it does embedded. The
+plain JAR in standalone fails with `AbstractMethodError`, as expected.
+`publishToMavenLocal` gives exactly two artifactIds, each with a jar, sources, javadoc
+and a POM that has the full metadata and no `<dependencies>`; `signStandalonePublication`
+exists. No build changes were needed. Docker is left out of the automated checks (none
+of the official extensions test it) and will be checked by hand against a published artifact.
 
 ### Phase 5: Docs, CI, release
 

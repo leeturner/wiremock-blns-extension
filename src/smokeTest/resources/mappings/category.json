@@ -1,0 +1,4 @@
+{
+  "request": { "method": "GET", "url": "/category" },
+  "response": { "body": "{{naughtyString category='sql-injection'}}", "transformers": ["response-template"] }
+}
