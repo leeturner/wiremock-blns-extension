@@ -345,9 +345,16 @@ Use `WireMockExtension` (junit5) with `.options(wireMockConfig().dynamicPort().e
   - BLNS attribution and licence.
 - GitHub Actions: `build.yml`, `dependabot.yml` and `dependabot-automerge.yml`
   were added in Phase 0. Copy `release.yml` from `wiremock-micronaut`.
-  - `build.yml` runs `./gradlew build` (which includes the smoke test) on a JDK
-    matrix of `17` and `25`. JDK 17 proves the extension runs on WireMock's baseline.
-    Keep the `dependency-submission` job.
+  - `build.yml` runs `./gradlew build` (which includes the smoke test) on JDK 25,
+    and runs the tests a second time on a JDK 17 JVM. JDK 17 proves the extension
+    runs on WireMock's baseline. Keep the `dependency-submission` job.
+  - Change the **test JVM** to 17, not the JDK that runs the build. Spotless can't
+    run google-java-format 1.35.0 on JDK 17 (it needs 21+), so `./gradlew build`
+    fails on 17 before anything is compiled. Use
+    `tasks.test { javaLauncher = javaToolchains.launcherFor { … } }` with a
+    `-PtestJava=17` property, and install both JDKs with `setup-java`. Gradle
+    finds JDKs that `setup-java` installs on its own. Testing a JAR built on 25 on
+    a 17 JVM is also the setup users will actually run.
   - `release.yml` is unchanged: on a published GitHub Release it runs
     `./gradlew build publishToMavenCentral -Pversion="${GITHUB_REF_NAME#v}"`. Add
     the `MAVEN_CENTRAL_USERNAME`, `MAVEN_CENTRAL_PASSWORD`, `SIGNING_KEY` and
