@@ -13,9 +13,14 @@ jobs:
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: '25'
+          # The last version is the default JDK; Gradle finds 17 as a toolchain.
+          java-version: |
+            17
+            25
       - uses: gradle/actions/setup-gradle@v6
       - run: ./gradlew build
+      # Again on WireMock's Java 17 baseline. Only the test JVM changes (see build.gradle.kts).
+      - run: ./gradlew test smokeTest -PtestJava=17
   # Submits the full Gradle dependency graph so Dependabot alerts cover transitive dependencies.
   dependency-submission:
     runs-on: ubuntu-latest
