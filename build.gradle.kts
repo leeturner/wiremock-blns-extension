@@ -112,20 +112,27 @@ mavenPublishing {
     }
 }
 
+// Central requires sources and javadoc for every artifactId. The standalone publication gets
+// its own copies: sharing the main publication's files makes both sign tasks write the same .asc.
+val standaloneSourcesJar by tasks.registering(Jar::class) {
+    archiveBaseName = "wiremock-blns-extension-standalone"
+    archiveClassifier = "sources"
+    from(sourceSets.main.map { it.allSource })
+}
+
+val standaloneJavadocJar by tasks.registering(Jar::class) {
+    archiveBaseName = "wiremock-blns-extension-standalone"
+    archiveClassifier = "javadoc"
+    from(tasks.javadoc)
+}
+
 publishing {
     publications {
         register<MavenPublication>("standalone") {
             artifactId = "wiremock-blns-extension-standalone"
             artifact(tasks.shadowJar) { classifier = null }
+            artifact(standaloneSourcesJar)
+            artifact(standaloneJavadocJar)
         }
-    }
-}
-
-// Central requires sources and javadoc for every artifactId. The maven-publish plugin
-// registers these tasks after evaluation, so attach them to the standalone publication then.
-afterEvaluate {
-    publishing.publications.named<MavenPublication>("standalone") {
-        artifact(tasks.named("sourcesJar"))
-        artifact(tasks.named("plainJavadocJar"))
     }
 }
