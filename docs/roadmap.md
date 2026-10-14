@@ -351,8 +351,10 @@ as a separate process, where `index=0` returns `undefined`, as it does embedded.
 plain JAR in standalone fails with `AbstractMethodError`, as expected.
 `publishToMavenLocal` gives exactly two artifactIds, each with a jar, sources, javadoc
 and a POM that has the full metadata and no `<dependencies>`; `signStandalonePublication`
-exists. No build changes were needed. Docker is left out of the automated checks (none
-of the official extensions test it) and will be checked by hand against a published artifact.
+exists. No build changes were needed. (Signing was not actually exercised: SNAPSHOT
+builds skip it. The first release found a bug here; see the Phase 5 result.) Docker is
+left out of the automated checks (none of the official extensions test it); it was
+checked by hand against the published 0.1.0 artifact in Phase 5.
 
 ### Phase 5: Docs, CI, release ✅
 
@@ -383,11 +385,24 @@ of the official extensions test it) and will be checked by hand against a publis
 helper reference with the `toJson` pattern, the category list with slugs and counts,
 a warning that the payloads are real, and the BLNS attribution. `-PtestJava=17` sets
 the launcher for every `Test` task, so the smoke test's standalone server (started
-with the test JVM's own `java`) also runs on 17; checked locally on 17.0.18. Docker
-was checked by hand with the locally built shadow JAR: `/var/wiremock/extensions/`
-still works in `wiremock/wiremock:4.0.0-beta.40` (`blns` is listed, `index=0`
-returns `undefined`). `weekly.yml` is skipped: the `wiremock-micronaut` one tracks
-`micronautVersion=5.+`, and WireMock is pinned to a beta here on purpose.
+with the test JVM's own `java`) also runs on 17; checked locally on 17.0.18 and in
+CI, where Gradle finds the JDK 17 that `setup-java` installs. `weekly.yml` is skipped:
+the `wiremock-micronaut` one tracks `micronautVersion=5.+`, and WireMock is pinned to
+a beta here on purpose.
+
+The first `v0.1.0` release failed at `:signStandalonePublication`. The standalone
+publication reused the main publication's `sourcesJar` and `plainJavadocJar`, so both
+sign tasks wrote the same `.asc` files and Gradle rejected the overlap. The standalone
+publication now has its own `wiremock-blns-extension-standalone-<v>-sources.jar` and
+`-javadoc.jar`, which also removed the `afterEvaluate` block. To check signing before a
+release, run `publishToMavenLocal` with a non-SNAPSHOT `-Pversion` and a throwaway key
+passed as `ORG_GRADLE_PROJECT_signingInMemoryKey` and
+`ORG_GRADLE_PROJECT_signingInMemoryKeyPassword`.
+
+0.1.0 was then published to Maven Central: both artifactIds, each with a jar, sources,
+javadoc and a POM with no `<dependencies>`. Docker was checked by hand with the published
+standalone JAR: `/var/wiremock/extensions/` still works in
+`wiremock/wiremock:4.0.0-beta.40` (`blns` is listed, `index=0` returns `undefined`).
 
 ## Risks and open questions
 
