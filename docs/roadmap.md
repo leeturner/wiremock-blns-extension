@@ -354,7 +354,7 @@ and a POM that has the full metadata and no `<dependencies>`; `signStandalonePub
 exists. No build changes were needed. Docker is left out of the automated checks (none
 of the official extensions test it) and will be checked by hand against a published artifact.
 
-### Phase 5: Docs, CI, release
+### Phase 5: Docs, CI, release ✅
 
 - README sections:
   - installation: Maven/Gradle for embedded use; the standalone JAR or Docker for standalone;
@@ -378,6 +378,16 @@ of the official extensions test it) and will be checked by hand against a publis
     the `MAVEN_CENTRAL_USERNAME`, `MAVEN_CENTRAL_PASSWORD`, `SIGNING_KEY` and
     `SIGNING_PASSWORD` secrets to this repo.
 - Optional: copy `weekly.yml` too.
+
+**Result:** the README covers installation (Maven/Gradle, standalone JAR, Docker), the
+helper reference with the `toJson` pattern, the category list with slugs and counts,
+a warning that the payloads are real, and the BLNS attribution. `-PtestJava=17` sets
+the launcher for every `Test` task, so the smoke test's standalone server (started
+with the test JVM's own `java`) also runs on 17; checked locally on 17.0.18. Docker
+was checked by hand with the locally built shadow JAR: `/var/wiremock/extensions/`
+still works in `wiremock/wiremock:4.0.0-beta.40` (`blns` is listed, `index=0`
+returns `undefined`). `weekly.yml` is skipped: the `wiremock-micronaut` one tracks
+`micronautVersion=5.+`, and WireMock is pinned to a beta here on purpose.
 
 ## Risks and open questions
 

@@ -26,6 +26,14 @@ tasks.test {
     useJUnitPlatform()
 }
 
+// -PtestJava=17 runs the tests (and the standalone server the smoke test starts) on that JVM.
+// Only the test JVM changes: Spotless needs JDK 21+ to run google-java-format.
+providers.gradleProperty("testJava").orNull?.let { testJava ->
+    tasks.withType<Test>().configureEach {
+        javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(testJava) }
+    }
+}
+
 // Keep the shadow JAR out of the main artifact; it is published as its own artifactId below.
 shadow { addShadowVariantIntoJavaComponent = false }
 
