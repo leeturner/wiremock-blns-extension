@@ -20,7 +20,7 @@ Every client test that hits the stub then exercises those cases for free.
 }
 ```
 
-- Targets **WireMock 4.0.0-beta.40** and runs on Java 17 or later.
+- Targets **WireMock 4.0.0-beta.41** and runs on Java 17 or later.
 - The list is bundled in the JAR. Nothing is downloaded at runtime.
 
 > [!WARNING]
@@ -80,7 +80,7 @@ Download `wiremock-blns-extension-standalone-<version>.jar` from Maven Central a
 put it on the classpath next to `wiremock-standalone`:
 
 ```shell
-java -cp wiremock-standalone-4.0.0-beta.40.jar:wiremock-blns-extension-standalone-<version>.jar \
+java -cp wiremock-standalone-4.0.0-beta.41.jar:wiremock-blns-extension-standalone-<version>.jar \
   wiremock.Run --root-dir path/to/stubs
 ```
 
@@ -95,11 +95,11 @@ Mount the standalone JAR into `/var/wiremock/extensions/`:
 docker run -p 8080:8080 \
   -v "$PWD/wiremock-blns-extension-standalone-<version>.jar:/var/wiremock/extensions/blns.jar" \
   -v "$PWD/mappings:/home/wiremock/mappings" \
-  wiremock/wiremock:4.0.0-beta.40
+  wiremock/wiremock:4.0.0-beta.41
 ```
 
 This is the same directory as in WireMock 3.x, and has been checked against
-`wiremock/wiremock:4.0.0-beta.40`.
+`wiremock/wiremock:4.0.0-beta.41`.
 
 ## Helper reference
 

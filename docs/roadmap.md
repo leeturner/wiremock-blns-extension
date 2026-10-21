@@ -2,7 +2,7 @@
 
 A WireMock extension that adds a Handlebars helper for putting strings from the
 [Big List of Naughty Strings](https://github.com/minimaxir/big-list-of-naughty-strings)
-(BLNS) into templated WireMock responses. It targets **WireMock 4.0.0-beta.40**.
+(BLNS) into templated WireMock responses. It targets **WireMock 4.0.0-beta.41**.
 
 ## Why
 
@@ -120,7 +120,7 @@ add Shadow.
 
   ```toml
   [versions]
-  wiremock = "4.0.0-beta.40"
+  wiremock = "4.0.0-beta.41"
   google-java-format = "1.35.0"
 
   [libraries]
@@ -339,7 +339,7 @@ so the README should recommend `body` only.
   1. Resolve `libs.wiremock.standalone` through a dedicated configuration, so no download script is needed.
   2. Run `java -cp wiremock-standalone.jar:wiremock-blns-extension-<v>-standalone.jar wiremock.Run --port 0 --root-dir src/smokeTest/resources`.
   3. Hit a fixture stub and check the response is a BLNS string.
-- **Docker:** mount the standalone JAR into `wiremock/wiremock:4.0.0-beta.40` at
+- **Docker:** mount the standalone JAR into `wiremock/wiremock:4.0.0-beta.41` at
   `/var/wiremock/extensions/`. That is the 3.x convention, so **check it still
   applies in 4.x** and record the result in the README.
 - **Done when:** both the embedded JAR and the standalone JAR give the same output
@@ -408,7 +408,7 @@ standalone JAR: `/var/wiremock/extensions/` still works in
 
 - **WireMock 4 is still in beta.** Its APIs, the shaded package prefix and the
   Docker extension directory could all change before GA. The standalone smoke test
-  is there to catch that. Pin `4.0.0-beta.40` and bump it on purpose.
+  is there to catch that. Pin `4.0.0-beta.41` and bump it on purpose.
 - **Payloads in a stub are real payloads.** The XSS, SQL and command-injection
   strings will reach whatever consumes the mock. That is the point of the
   extension, but the README should say so plainly.
