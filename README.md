@@ -1,6 +1,8 @@
 # wiremock-blns-extension
 
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.leeturner/wiremock-blns-extension)](https://central.sonatype.com/artifact/io.github.leeturner/wiremock-blns-extension)
+[![Build](https://github.com/leeturner/wiremock-blns-extension/actions/workflows/build.yml/badge.svg)](https://github.com/leeturner/wiremock-blns-extension/actions/workflows/build.yml)
+[![Licence](https://img.shields.io/github/license/leeturner/wiremock-blns-extension)](LICENSE)
 
 A [WireMock](https://wiremock.org) extension that adds a `naughtyString` Handlebars
 helper, so templated responses can return strings from the
