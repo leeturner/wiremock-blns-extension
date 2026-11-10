@@ -12,5 +12,5 @@ assertj = { module = "org.assertj:assertj-core", version = "3.27.7" }
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version = "9.6.1" }
-spotless = { id = "com.diffplug.spotless", version = "8.10.4" }
+spotless = { id = "com.diffplug.spotless", version = "8.11.0" }
 maven-publish = { id = "com.vanniktech.maven.publish", version = "0.37.0" }
