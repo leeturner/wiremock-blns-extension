@@ -1,5 +1,5 @@
 [versions]
-wiremock = "4.0.0-beta.43"
+wiremock = "4.0.0-beta.44"
 google-java-format = "1.35.0"
 
 [libraries]
